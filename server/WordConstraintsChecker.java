@@ -13,78 +13,32 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 public class WordConstraintsChecker {
-	String wordBefore, wordAfter;
-	ArrayList<String> wordDB = new ArrayList<>();
+	private String wordBefore, wordAfter;
+	private ArrayList<String> wordDB;
 	
-	public WordConstraintsChecker() {
-		initWordDB();
+	public WordConstraintsChecker(ArrayList<String> wordDB) {
+		this.wordDB = wordDB;
 	}
 	
-	public WordConstraintsChecker(String wordBefore, String wordAfter) {
-		this();
+	public WordConstraintsChecker(String wordBefore, String wordAfter, ArrayList<String> wordDB) {
+		this(wordDB);
 		this.wordBefore = wordBefore;
 		this.wordAfter = wordAfter;
 	}
 	
-	private void initWordDB() {
-		File dbCSV;
-		BufferedReader br;
-		int i=0;
-		String path = "./data/kp_korean-noun.csv";
+	//
+	public int checkConstraints(String wordBefore, String wordAfter) {
+		int ret = 0;
+		this.wordBefore=wordBefore;
+		this.wordAfter=wordAfter;
 		
-		HashSet<String> hashset = new HashSet<>();
-
-		try {
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
-			String line = "";
-
-			while((line = br.readLine()) != null){
-				String line1[] = line.split(",", -1);
-				//String line1[] = line.split(",");
-				
-// 접사 어미 조사 북한어	
-				
-//				for(String data : wordDB) {
-//					if(!wordDB.contains(data))
-//						wordDB.add(data);
-//				}
-			
-//				Iterator<String> itr = wordDB.iterator();
-//				while(itr.hasNext()) {
-//					System.out.println(itr.next());
-//				}
-				
-				
-//				wordDB.add(line1[1]);
-				
-//				if(line1[1] == "명사") {
-//					wordDB.add(line1[0]);
-//				}
-				
-//				if(i%5000 == 0) {
-//					System.out.println("current word : "+line1[0]);
-//				}
-					
-				i++;
-			}
-			
-			System.out.println(wordDB);
-			
-			br.close();
-			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		
-
+		
+		return ret;
 	}
 	
-	
 	public static void main(String args[]) {
-		WordConstraintsChecker checker = new WordConstraintsChecker();
+		//WordConstraintsChecker checker = new WordConstraintsChecker();
 	}
 	
 }
