@@ -16,10 +16,9 @@ public class WordDB {
 	}
 	
 	private void initWordDB() {
-		File dbCSV;
 		BufferedReader br;
-		int i=0;
 		String path = "./data/kp_korean-noun.csv";
+		int i=0;
 
 		try {
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
@@ -28,9 +27,14 @@ public class WordDB {
 			while((line = br.readLine()) != null){
 				String line1[] = line.split(",", -1);
 				
-				if(line1[1]=="명사" || line1[1]=="대명사") {
+				if(line1[1].equals("명사") || line1[1].equals("대명사")) {
 					wordDB.add(line1[0]);
+//					System.out.println(i+"  "+line1[0]);
+//					i++;
 				}
+				
+//				System.out.println(i+"  "+line1[0]);
+//				i++;
 			}
 						
 			br.close();
@@ -43,7 +47,12 @@ public class WordDB {
 		}
 	}
 	
-	public ArrayList<String> getWordDB() {
-		return wordDB;
+	public boolean contains(String word) {
+		if(wordDB.contains(word)) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }
