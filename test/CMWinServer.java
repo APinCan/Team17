@@ -156,7 +156,7 @@ public class CMWinServer extends JFrame {
 		JMenuItem disconnectDefaultMenuItem = new JMenuItem("disconnect from default server");
 		disconnectDefaultMenuItem.addActionListener(menuListener);
 		multiServerSubMenu.add(disconnectDefaultMenuItem);
-		JMenuItem regDefaultMenuItem = new JMenuItem("register to default server");
+		JMenuItem regDefaultMenuItem = new JMenuItem("` to default server");
 		regDefaultMenuItem.addActionListener(menuListener);
 		multiServerSubMenu.add(regDefaultMenuItem);
 		JMenuItem deregDefaultMenuItem = new JMenuItem("deregister from default server");
