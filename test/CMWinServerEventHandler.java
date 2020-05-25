@@ -187,6 +187,7 @@ public class CMWinServerEventHandler implements CMAppEventHandler {
 			printMessage("["+ie.getUserName()+"] leaves group("+ie.getHandlerGroup()+") in session("
 					+ie.getHandlerSession()+").\n");
 			break;
+
 		case CMInterestEvent.USER_TALK:
 			//System.out.println("("+ie.getHandlerSession()+", "+ie.getHandlerGroup()+")");
 			printMessage("("+ie.getHandlerSession()+", "+ie.getHandlerGroup()+")\n");

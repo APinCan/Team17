@@ -5,10 +5,14 @@ import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 public class WordGameServer {
 	private CMServerStub m_serverStub;
 	private WordGameEventHandler m_eventHandler;
+	private WordDB wordDB;
+	private WordConstraintsChecker checker;
 	
 	public WordGameServer() {
 		m_serverStub = new CMServerStub();
-		m_eventHandler = new WordGameEventHandler(m_serverStub);
+		wordDB = new WordDB();
+		checker = new WordConstraintsChecker(wordDB);
+		m_eventHandler = new WordGameEventHandler(m_serverStub, checker);
 	}
 	
 	public CMServerStub getServerStub() {
