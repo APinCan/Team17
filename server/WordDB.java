@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class WordDB {
 	private ArrayList<String> wordDB = new ArrayList<>();
@@ -45,6 +46,15 @@ public class WordDB {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public String selectFirstString() {
+		Random random = new Random();
+		String str = null;
+		
+		
+		
+		return str; 
 	}
 	
 	public boolean contains(String word) {

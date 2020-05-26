@@ -28,13 +28,18 @@ public class WordConstraintsChecker {
 		this.wordAfter = wordAfter;
 	}
 	
+	public String selectFirstString() {
+		
+		
+		return wordAfter;
+	}
+	
 	public void setWordLengthConstraints(int wordLength) {
 		this.wordLengthConstraint = wordLength;
 	}
 	
-	
 	public int checkConstraints(String wordAfter) {
-		int ret = 0;
+		int ret = 1;
 		this.wordAfter=wordAfter;
 		
 		// word length constraint

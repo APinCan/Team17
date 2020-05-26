@@ -1,5 +1,10 @@
 package server;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
+import kr.ac.konkuk.ccslab.cm.entity.CMGroup;
+import kr.ac.konkuk.ccslab.cm.entity.CMSession;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMInterestEvent;
@@ -7,14 +12,18 @@ import kr.ac.konkuk.ccslab.cm.event.CMSessionEvent;
 import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.info.CMConfigurationInfo;
 import kr.ac.konkuk.ccslab.cm.info.CMInfo;
+import kr.ac.konkuk.ccslab.cm.info.CMInteractionInfo;
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 
 public class WordGameEventHandler implements CMAppEventHandler {
 	private CMServerStub m_serverStub;
 	private WordConstraintsChecker checker;
+	private boolean[] gameStartFlags = new boolean[10];
+	private String[] gameFirstString = new String[10];
 	
 	public WordGameEventHandler(CMServerStub serverStub) {
 		m_serverStub = serverStub;
+		Arrays.fill(gameStartFlags, false);
 	}
 	
 	public WordGameEventHandler(CMServerStub serverStub, WordConstraintsChecker checker) {
@@ -69,9 +78,48 @@ public class WordGameEventHandler implements CMAppEventHandler {
 
 	private void processDummyEvent(CMEvent cme) {
 		CMDummyEvent due = (CMDummyEvent) cme;
+		String message=null;
+		
+//		who send message(session, group)
 		System.out.println("PR, session("+due.getHandlerSession()+") group("+due.getHandlerGroup()+")");
 		System.out.println("PR, dummy msg: "+due.getDummyInfo());
 		
+		
+//	
+//		need test		
+//		
+//		if get game start message
+//		split message, and get
+		if(message.equals("gamestart")) {
+			CMInteractionInfo interInfo = m_serverStub.getCMInfo().getInteractionInfo();
+			int i=0;
+//			we use only one session, session1
+			CMSession session = interInfo.findSession("session1");
+			Iterator<CMGroup> iter = session.getGroupList().iterator();
+			
+			while(iter.hasNext()) {
+				CMGroup gInfo = iter.next();
+				
+//				find the group, equal to message sender
+				if(gInfo.getGroupName()==due.getHandlerGroup()) {
+//					server can start the game
+					if(gInfo.getGroupUsers().getMemberNum()==2 && gameStartFlags[i]==false) {
+//						start game
+						System.out.println("PR, start game");
+						gameStartFlags[i]=true;
+					}
+					else {
+						System.out.println("can not start game");
+					}
+					
+					break;
+				}
+				
+				i++;
+			}
+		
+		}
+
 		return;
 	}
 	
@@ -100,6 +148,35 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			default:
 				return;
 				
+		}
+	}
+	
+//	will be used in USER_TALK
+	private void wordCheck(String word) {
+		int ret;
+		
+		ret = this.checker.checkConstraints(word);
+//		 success
+		if(ret==1) {
+			
+		}
+//		wrong word
+		else {
+			
+		}
+	}
+	
+
+//	only call by gamestart message
+	public class GameThread extends Thread{
+		private WordConstraintsChecker checker;
+
+		public GameThread(WordConstraintsChecker checker) {
+			this.checker = checker;
+		}
+		
+		public void run() {
+			
 		}
 	}
 }
