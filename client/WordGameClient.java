@@ -120,6 +120,14 @@ public class WordGameClient
 		String gameStartMessage = "game#sender#gamestart";
 		// when client enter gameword
 		String gameWordSendMessage = "game#sender#gameword#자동차";
+		
+		
+		// 
+		// example, receive from server
+		//
+		// when server send first word
+		// game#server#firstWord#[exampleword]
+		// 
 	}
 	
 	public void tranferLobby()

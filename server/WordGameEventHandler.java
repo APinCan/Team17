@@ -80,6 +80,12 @@ public class WordGameEventHandler implements CMAppEventHandler {
 //			if client request requestSessionInfo()
 //			case CMSessionEvent.RESPONSE_SESSION_INFO:
 //				
+				
+//			if clinet log out to server
+			case CMSessionEvent.LOGOUT:
+				System.out.println("PR, "+se.getUserName()+" log out");
+				break;
+				
 			default:
 				return;
 		}
@@ -96,6 +102,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 //		who send message(session, group)
 		System.out.println("PR, session("+due.getHandlerSession()+") group("+due.getHandlerGroup()+")");
 		System.out.println("PR, dummy msg: "+due.getDummyInfo());
+		
 		
 //		String[0] = type, String[1] = sender, String[2] = message
 		String[] getMessage = due.getDummyInfo().split("#");
@@ -114,6 +121,8 @@ public class WordGameEventHandler implements CMAppEventHandler {
 				if(gInfo.getGroupName()==due.getHandlerGroup()) {
 					if(gInfo.getGroupUsers().getMemberNum()==2 && gameStartFlags[i]==false) {
 						gameCanStart=true;
+						
+						break;
 					}
 				}
 				
@@ -123,6 +132,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 //			if get game start message
 			if(getMessage[2].equals("gamestart")) {
 				if(gameCanStart) {
+					CMDummyEvent firstWordDue = new CMDummyEvent();
 					gameStartFlags[i]=true;
 					
 					dummySendMessage = "game#server#startgame";
@@ -131,6 +141,14 @@ public class WordGameEventHandler implements CMAppEventHandler {
 					sendDue.setHandlerSession("SERVER");
 					sendDue.setDummyInfo(dummySendMessage);
 					sendToClient(sendDue, due);
+					
+//					server send first word
+					dummySendMessage = "game#server#firstWord#";
+//					dummySendMessage = dummySendMessage+FirstString;
+					firstWordDue.setHandlerGroup("SERVER");
+					firstWordDue.setHandlerSession("SERVER");
+					firstWordDue.setDummyInfo(dummySendMessage);
+					sendToClient(firstWordDue, due);
 					
 					System.out.println("PR, start game");	
 				}
@@ -159,7 +177,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 				sendDue.setDummyInfo(dummySendMessage);
 				sendToClient(sendDue, due);
 				
-				System.out.println("PR, send to server "+dummySendMessage);
+				System.out.println("PR, send to client "+dummySendMessage);
 			}
 
 		}
@@ -174,13 +192,23 @@ public class WordGameEventHandler implements CMAppEventHandler {
 		switch(ie.getID()) {
 //		call when client change group / client call CMSessionEvent.JOIN_SESSION_ACK
 			case CMInterestEvent.USER_ENTER:
-				System.out.println("PR, ["+ie.getUserName()+"] enters group("+ie.getCurrentGroup()+") in session("
-				+ie.getHandlerSession()+")");
+//				if client move to lobby
+				if(ie.getCurrentGroup().equals("g1")) {
+					System.out.println("PR, ["+ie.getUserName()+"] enters lobby in session("
+							+ie.getHandlerSession()+")");
+				}
+//				client move to other gameroom
+				else {
+					System.out.println("PR, ["+ie.getUserName()+"] enters group("+ie.getCurrentGroup()+") in session("
+							+ie.getHandlerSession()+")");
+				}
+				break;
 				
 //		call when client leave current group
 			case CMInterestEvent.USER_LEAVE:
 				System.out.println("PR, ["+ie.getUserName()+"] leaves group("+ie.getCurrentGroup()+") in session("
 						+ie.getHandlerSession()+")");
+				break;
 				
 /* in server, getTalk() method using only here */
 //		call when client chat / client call CMClientStub.chat(String, String).
