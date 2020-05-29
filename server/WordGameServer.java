@@ -29,6 +29,7 @@ public class WordGameServer {
 		CMServerStub cmStub = server.getServerStub();
 		cmStub.setAppEventHandler(server.getServerEvenetHandler());
 		cmStub.startCM();
+	
 	}
 	
 }

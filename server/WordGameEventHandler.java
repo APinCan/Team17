@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import kr.ac.konkuk.ccslab.cm.entity.CMGroup;
 import kr.ac.konkuk.ccslab.cm.entity.CMSession;
+import kr.ac.konkuk.ccslab.cm.entity.CMUser;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMInterestEvent;
@@ -17,18 +18,19 @@ import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 
 public class WordGameEventHandler implements CMAppEventHandler {
 	private CMServerStub m_serverStub;
-	private WordConstraintsChecker checker;
+//	private WordConstraintsChecker checker;
 	private boolean[] gameStartFlags = new boolean[10];
-	private String[] gameFirstString = new String[10];
+	private WordConstraintsChecker[] checker = new WordConstraintsChecker[10];
 	
 	public WordGameEventHandler(CMServerStub serverStub) {
 		m_serverStub = serverStub;
 		Arrays.fill(gameStartFlags, false);
+//		Arrays.fill(checker, new WordConstraintsChecker(new WordDB));
 	}
 	
 	public WordGameEventHandler(CMServerStub serverStub, WordConstraintsChecker checker) {
 		this(serverStub);
-		this.checker = checker;
+//		this.checker = checker;
 	}
 	
 	@Override
@@ -50,6 +52,13 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			default:
 				return;
 		}
+	}
+	
+	public void sendToClient(CMDummyEvent sendToClient, CMDummyEvent receiveFromServer) {
+		m_serverStub.send(sendToClient, receiveFromServer.getSender());
+		
+//		ex.
+//		send(game#server#gamestart, [dst : which client send to gamestart message to server])
 	}
 	
 	private void processSessionEvent(CMEvent cme) {
@@ -78,47 +87,83 @@ public class WordGameEventHandler implements CMAppEventHandler {
 
 	private void processDummyEvent(CMEvent cme) {
 		CMDummyEvent due = (CMDummyEvent) cme;
+		CMDummyEvent sendDue = new CMDummyEvent();
+		String dummySendMessage = null;
+		String purpose=null;
+		String sender=null;
 		String message=null;
 		
 //		who send message(session, group)
 		System.out.println("PR, session("+due.getHandlerSession()+") group("+due.getHandlerGroup()+")");
 		System.out.println("PR, dummy msg: "+due.getDummyInfo());
 		
+//		String[0] = type, String[1] = sender, String[2] = message
+		String[] getMessage = due.getDummyInfo().split("#");
 		
-//	
-//		need test		
-//		
-//		if get game start message
-//		split message, and get
-		if(message.equals("gamestart")) {
+//		in gameroom
+		if(getMessage[0].equals("game")) {
 			CMInteractionInfo interInfo = m_serverStub.getCMInfo().getInteractionInfo();
-			int i=0;
-//			we use only one session, session1
 			CMSession session = interInfo.findSession("session1");
 			Iterator<CMGroup> iter = session.getGroupList().iterator();
+			boolean gameCanStart=false;
+			int i=0;
 			
 			while(iter.hasNext()) {
 				CMGroup gInfo = iter.next();
 				
-//				find the group, equal to message sender
 				if(gInfo.getGroupName()==due.getHandlerGroup()) {
-//					server can start the game
 					if(gInfo.getGroupUsers().getMemberNum()==2 && gameStartFlags[i]==false) {
-//						start game
-						System.out.println("PR, start game");
-						gameStartFlags[i]=true;
+						gameCanStart=true;
 					}
-					else {
-						System.out.println("can not start game");
-					}
-					
-					break;
 				}
 				
 				i++;
 			}
-		
+			
+//			if get game start message
+			if(getMessage[2].equals("gamestart")) {
+				if(gameCanStart) {
+					gameStartFlags[i]=true;
+					
+					dummySendMessage = "game#server#startgame";
+					
+					sendDue.setHandlerGroup("SERVER");
+					sendDue.setHandlerSession("SERVER");
+					sendDue.setDummyInfo(dummySendMessage);
+					sendToClient(sendDue, due);
+					
+					System.out.println("PR, start game");	
+				}
+				else {
+					System.out.println("PR, can not start game");
+				}
+				
+				
+			}
+//			normal game message, server must check constraints
+			else if(getMessage[2].equals("gameword")) {
+				boolean isValid=false;
+//				isValid = constraints checker(getMessage[3]);
+				
+				if(isValid) {
+//					client message sent before is valid
+					dummySendMessage="game#server#validmessage";
+				}
+				else {
+//					client message sent before is non-valid
+					dummySendMessage="game#server#nonvalidmessage";
+				}
+				
+				sendDue.setHandlerGroup("SERVER");
+				sendDue.setHandlerSession("SERVER");
+				sendDue.setDummyInfo(dummySendMessage);
+				sendToClient(sendDue, due);
+				
+				System.out.println("PR, send to server "+dummySendMessage);
+			}
+
 		}
+
 
 		return;
 	}
@@ -153,11 +198,10 @@ public class WordGameEventHandler implements CMAppEventHandler {
 	
 //	will be used in USER_TALK
 	private void wordCheck(String word) {
-		int ret;
-		
-		ret = this.checker.checkConstraints(word);
+		boolean ret=false;
+
 //		 success
-		if(ret==1) {
+		if(ret) {
 			
 		}
 //		wrong word
@@ -170,13 +214,46 @@ public class WordGameEventHandler implements CMAppEventHandler {
 //	only call by gamestart message
 	public class GameThread extends Thread{
 		private WordConstraintsChecker checker;
+		private String firstString;
+		private boolean isStop=false;
+		private int turn=0; // turn=0 first player, turn=1 second player
 
 		public GameThread(WordConstraintsChecker checker) {
 			this.checker = checker;
+//			firstString = this.checker.getFirstString();
+		}
+		
+		public void setStop(boolean isStop) {
+			this.isStop = isStop;
 		}
 		
 		public void run() {
+			try {
+//				wait user input
+				while(!isStop) {
+					Thread.sleep(5000);
+					turn %= 2;
+				}
+				System.out.println("game end");
+				
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public class TimerThread implements Runnable{
+
+		TimerThread(){
 			
 		}
+		
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 }

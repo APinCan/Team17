@@ -11,6 +11,7 @@ import java.util.Random;
 
 public class WordDB {
 	private ArrayList<String> wordDB = new ArrayList<>();
+	private int dbLength;
 	
 	public WordDB() {
 		initWordDB();
@@ -31,13 +32,15 @@ public class WordDB {
 				if(line1[1].equals("명사") || line1[1].equals("대명사")) {
 					wordDB.add(line1[0]);
 //					System.out.println(i+"  "+line1[0]);
-//					i++;
+					i++;
 				}
 				
 //				System.out.println(i+"  "+line1[0]);
 //				i++;
 			}
-						
+			
+			dbLength = i;
+			
 			br.close();
 			
 		} catch (FileNotFoundException e) {
@@ -50,11 +53,13 @@ public class WordDB {
 	
 	public String selectFirstString() {
 		Random random = new Random();
-		String str = null;
+		String firstString = null;
+		int randIdx;
 		
+		randIdx = random.nextInt(dbLength);
+		firstString = wordDB.get(randIdx);
 		
-		
-		return str; 
+		return firstString; 
 	}
 	
 	public boolean contains(String word) {

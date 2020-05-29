@@ -113,7 +113,13 @@ public class WordGameClient
 	//Send the words.
 	public void sendToserver()
 	{
-		
+		//
+		// example
+		//
+		// when client click gamestart
+		String gameStartMessage = "game#sender#gamestart";
+		// when client enter gameword
+		String gameWordSendMessage = "game#sender#gameword#자동차";
 	}
 	
 	public void tranferLobby()

@@ -28,38 +28,40 @@ public class WordConstraintsChecker {
 		this.wordAfter = wordAfter;
 	}
 	
-	public String selectFirstString() {
+	public void startGame() {
+		String word = this.wordDB.selectFirstString();
+		this.wordBefore = word;
+		setWordLengthConstraints(word.length());
 		
-		
-		return wordAfter;
+//		return word;
 	}
 	
-	public void setWordLengthConstraints(int wordLength) {
+	private void setWordLengthConstraints(int wordLength) {
 		this.wordLengthConstraint = wordLength;
 	}
 	
-	public int checkConstraints(String wordAfter) {
-		int ret = 1;
+	public boolean checkConstraints(String wordAfter) {
+		boolean ret = true;
 		this.wordAfter=wordAfter;
 		
 		// word length constraint
 		if(wordLengthConstraint != this.wordAfter.length()) {
-			ret = -1; // if length different
+			ret = false; // if length different
 			System.out.println("break word length rule");
 		}
 		// word history constraint
 		else if(wordHistory.contains(this.wordAfter)) {
-			ret = -2; // if wordHistory have wordAfter
+			ret = false; // if wordHistory have wordAfter
 			System.out.println("break word history rule");
 		}
 		// check correct word game
 		else if(this.wordBefore.charAt(this.wordBefore.length()-1) != this.wordAfter.charAt(0)) {
-			ret = -3; // if not word game
+			ret = false; // if not word game
 			System.out.println("break word correct rule");
 		}
 		// check word list
 		else if(!wordDB.contains(this.wordAfter)) {
-			ret = -4; // if not contain wordAfter
+			ret = false; // if not contain wordAfter
 			System.out.println("break word list rule"+"  "+this.wordAfter);
 		}
 		
@@ -68,8 +70,8 @@ public class WordConstraintsChecker {
 		return ret;
 	}
 	
-	public int checkConstraints(String wordBefore, String wordAfter) {
-		int ret = 0;
+	public boolean checkConstraints(String wordBefore, String wordAfter) {
+		boolean ret;
 		this.wordBefore=wordBefore;	
 		ret = this.checkConstraints(wordAfter);
 		
