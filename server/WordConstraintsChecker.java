@@ -36,16 +36,22 @@ public class WordConstraintsChecker {
 //		return word;
 	}
 	
+	public String getFirstString() {
+		String first = wordDB.selectFirstString();
+		
+		return first;
+	}
+	
 	private void setWordLengthConstraints(int wordLength) {
 		this.wordLengthConstraint = wordLength;
 	}
 	
-	public boolean checkConstraints(String wordAfter) {
+	public boolean checkConstraints(String wordBefore, String wordAfter, int wordLength) {
 		boolean ret = true;
-		this.wordAfter=wordAfter;
+//		this.wordAfter=wordAfter;
 		
 		// word length constraint
-		if(wordLengthConstraint != this.wordAfter.length()) {
+		if(wordLength != wordAfter.length()) {
 			ret = false; // if length different
 			System.out.println("break word length rule");
 		}
@@ -71,9 +77,9 @@ public class WordConstraintsChecker {
 	}
 	
 	public boolean checkConstraints(String wordBefore, String wordAfter) {
-		boolean ret;
+		boolean ret=false;
 		this.wordBefore=wordBefore;	
-		ret = this.checkConstraints(wordAfter);
+//		ret = this.checkConstraints(wordAfter);
 		
 		return ret;
 		

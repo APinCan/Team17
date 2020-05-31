@@ -2,6 +2,7 @@ package server;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Vector;
 
 import kr.ac.konkuk.ccslab.cm.entity.CMGroup;
 import kr.ac.konkuk.ccslab.cm.entity.CMSession;
@@ -18,9 +19,12 @@ import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 
 public class WordGameEventHandler implements CMAppEventHandler {
 	private CMServerStub m_serverStub;
-//	private WordConstraintsChecker checker;
+	private WordConstraintsChecker checker;
 	private boolean[] gameStartFlags = new boolean[10];
-	private WordConstraintsChecker[] checker = new WordConstraintsChecker[10];
+//	private WordConstraintsChecker[] checker = new WordConstraintsChecker[10];
+	private TimerThread[] timerThread = new TimerThread[10];
+	private String[] beforeWord = new String[10];
+	private int[] constraintsWordLength = new int[10];
 	
 	public WordGameEventHandler(CMServerStub serverStub) {
 		m_serverStub = serverStub;
@@ -30,7 +34,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 	
 	public WordGameEventHandler(CMServerStub serverStub, WordConstraintsChecker checker) {
 		this(serverStub);
-//		this.checker = checker;
+		this.checker = checker;
 	}
 	
 	@Override
@@ -94,6 +98,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 	private void processDummyEvent(CMEvent cme) {
 		CMDummyEvent due = (CMDummyEvent) cme;
 		CMDummyEvent sendDue = new CMDummyEvent();
+		CMDummyEvent otherCDue = new CMDummyEvent();
 		String dummySendMessage = null;
 		String purpose=null;
 		String sender=null;
@@ -118,9 +123,18 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			while(iter.hasNext()) {
 				CMGroup gInfo = iter.next();
 				
-				if(gInfo.getGroupName()==due.getHandlerGroup()) {
+				if(gInfo.getGroupName().equals(due.getHandlerGroup())) {
 					if(gInfo.getGroupUsers().getMemberNum()==2 && gameStartFlags[i]==false) {
 						gameCanStart=true;
+						
+						Iterator<CMUser> userIter = gInfo.getGroupUsers().getAllMembers().iterator();
+						while(userIter.hasNext())
+						{
+							CMUser user = userIter.next();
+//							not equal sender, 
+							if(!user.getName().equals(due.getSender())) {
+							}
+						}
 						
 						break;
 					}
@@ -133,6 +147,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			if(getMessage[2].equals("gamestart")) {
 				if(gameCanStart) {
 					CMDummyEvent firstWordDue = new CMDummyEvent();
+					String firstString;
 					gameStartFlags[i]=true;
 					
 					dummySendMessage = "game#server#startgame";
@@ -144,7 +159,12 @@ public class WordGameEventHandler implements CMAppEventHandler {
 					
 //					server send first word
 					dummySendMessage = "game#server#firstWord#";
-//					dummySendMessage = dummySendMessage+FirstString;
+					firstString = checker.getFirstString();
+//					server save firstWord and length constraints
+					beforeWord[i] = firstString;
+					constraintsWordLength[i] = firstString.length();
+					
+					dummySendMessage = dummySendMessage+firstString;
 					firstWordDue.setHandlerGroup("SERVER");
 					firstWordDue.setHandlerSession("SERVER");
 					firstWordDue.setDummyInfo(dummySendMessage);
@@ -160,16 +180,35 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			}
 //			normal game message, server must check constraints
 			else if(getMessage[2].equals("gameword")) {
-				boolean isValid=false;
+				timerThread[i] = new TimerThread(i);
+//				boolean isValid=false;
+				boolean isValid=true;
 //				isValid = constraints checker(getMessage[3]);
 				
 				if(isValid) {
 //					client message sent before is valid
 					dummySendMessage="game#server#validmessage";
+//					if true = timer is off then timer on
+					if(!timerThread[i].isAlive()) {
+						System.out.println("PR, isInterupted");
+						timerThread[i].run();
+					}
+//					if interrupt false = timer is on the timer off, rerun
+					else {
+						System.out.println("PR, server receive word");
+						timerThread[i].interrupt();
+						timerThread[i] = new TimerThread(i);
+						timerThread[i].run();
+					}
+					
 				}
 				else {
 //					client message sent before is non-valid
 					dummySendMessage="game#server#nonvalidmessage";
+					
+//					if game word is not valid send interrupt
+					System.out.println("PR, word is not correct");
+					timerThread[i].interrupt();
 				}
 				
 				sendDue.setHandlerGroup("SERVER");
@@ -177,7 +216,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 				sendDue.setDummyInfo(dummySendMessage);
 				sendToClient(sendDue, due);
 				
-				System.out.println("PR, send to client "+dummySendMessage);
+				System.out.println("PR, send word to client "+dummySendMessage);
 			}
 
 		}
@@ -223,64 +262,29 @@ public class WordGameEventHandler implements CMAppEventHandler {
 				
 		}
 	}
+
 	
-//	will be used in USER_TALK
-	private void wordCheck(String word) {
-		boolean ret=false;
-
-//		 success
-		if(ret) {
-			
-		}
-//		wrong word
-		else {
-			
-		}
-	}
-	
-
-//	only call by gamestart message
-	public class GameThread extends Thread{
-		private WordConstraintsChecker checker;
-		private String firstString;
-		private boolean isStop=false;
-		private int turn=0; // turn=0 first player, turn=1 second player
-
-		public GameThread(WordConstraintsChecker checker) {
-			this.checker = checker;
-//			firstString = this.checker.getFirstString();
-		}
+	public class TimerThread extends Thread{
+		private int groupIdx;
 		
-		public void setStop(boolean isStop) {
-			this.isStop = isStop;
-		}
-		
-		public void run() {
-			try {
-//				wait user input
-				while(!isStop) {
-					Thread.sleep(5000);
-					turn %= 2;
-				}
-				System.out.println("game end");
-				
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public class TimerThread implements Runnable{
-
 		TimerThread(){
 			
 		}
 		
-		@Override
+		TimerThread(int groupIdx){
+			this.groupIdx = groupIdx;
+		}
+
 		public void run() {
 			// TODO Auto-generated method stub
-			
+			try {
+				Thread.sleep(5000);
+				System.out.println("PR, timer expired");
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.out.println("PR, thread interrupted "+this.groupIdx);
+			}
 		}
 		
 	}
