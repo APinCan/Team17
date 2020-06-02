@@ -127,14 +127,15 @@ public class WordGameEventHandler implements CMAppEventHandler {
 					if(gInfo.getGroupUsers().getMemberNum()==2 && gameStartFlags[i]==false) {
 						gameCanStart=true;
 						
-						Iterator<CMUser> userIter = gInfo.getGroupUsers().getAllMembers().iterator();
-						while(userIter.hasNext())
-						{
-							CMUser user = userIter.next();
-//							not equal sender, 
-							if(!user.getName().equals(due.getSender())) {
-							}
-						}
+//						this function maybe use cast function
+//						Iterator<CMUser> userIter = gInfo.getGroupUsers().getAllMembers().iterator();
+//						while(userIter.hasNext())
+//						{
+//							CMUser user = userIter.next();
+////							not equal sender, 
+//							if(!user.getName().equals(due.getSender())) {
+//							}
+//						}
 						
 						break;
 					}
@@ -149,15 +150,19 @@ public class WordGameEventHandler implements CMAppEventHandler {
 					CMDummyEvent firstWordDue = new CMDummyEvent();
 					String firstString;
 					gameStartFlags[i]=true;
-					
+//					
+//					server send startgame message to group
+//					
 					dummySendMessage = "game#server#startgame";
 					
 					sendDue.setHandlerGroup("SERVER");
 					sendDue.setHandlerSession("SERVER");
 					sendDue.setDummyInfo(dummySendMessage);
 					sendToClient(sendDue, due);
-					
-//					server send first word
+					m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
+//					
+//					server send first word message to group
+//					
 					dummySendMessage = "game#server#firstWord#";
 					firstString = checker.getFirstString();
 //					server save firstWord and length constraints
@@ -168,11 +173,21 @@ public class WordGameEventHandler implements CMAppEventHandler {
 					firstWordDue.setHandlerGroup("SERVER");
 					firstWordDue.setHandlerSession("SERVER");
 					firstWordDue.setDummyInfo(dummySendMessage);
-					sendToClient(firstWordDue, due);
+//					sendToClient(firstWordDue, due);
+					m_serverStub.cast(firstWordDue, due.getHandlerSession(), due.getHandlerGroup());
 					
 					System.out.println("PR, start game");	
 				}
 				else {
+//
+//					server send cannot start game meesage only to sender
+//
+					dummySendMessage = "game#server#notstartgame";
+					sendDue.setHandlerGroup("SERVER");
+					sendDue.setHandlerSession("SERVER");
+					sendDue.setDummyInfo(dummySendMessage);
+					m_serverStub.send(sendDue, due.getSender());
+					
 					System.out.println("PR, can not start game");
 				}
 				
@@ -184,10 +199,12 @@ public class WordGameEventHandler implements CMAppEventHandler {
 //				boolean isValid=false;
 				boolean isValid=true;
 //				isValid = constraints checker(getMessage[3]);
+				sendDue.setHandlerGroup("SERVER");
+				sendDue.setHandlerSession("SERVER");
 				
 				if(isValid) {
 //					client message sent before is valid
-					dummySendMessage="game#server#validmessage";
+
 //					if true = timer is off then timer on
 					if(!timerThread[i].isAlive()) {
 						System.out.println("PR, isInterupted");
@@ -200,7 +217,13 @@ public class WordGameEventHandler implements CMAppEventHandler {
 						timerThread[i] = new TimerThread(i);
 						timerThread[i].run();
 					}
+//					for send to other group member
+					dummySendMessage="game#serever#gameword"+getMessage[3];
+					sendDue.setDummyInfo(dummySendMessage);
+					m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
 					
+					dummySendMessage="game#server#validmessage";
+
 				}
 				else {
 //					client message sent before is non-valid
@@ -211,10 +234,10 @@ public class WordGameEventHandler implements CMAppEventHandler {
 					timerThread[i].interrupt();
 				}
 				
-				sendDue.setHandlerGroup("SERVER");
-				sendDue.setHandlerSession("SERVER");
+//				sendToClient(sendDue, due);
+//				message is valid or nonvalid send to group members
 				sendDue.setDummyInfo(dummySendMessage);
-				sendToClient(sendDue, due);
+				m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
 				
 				System.out.println("PR, send word to client "+dummySendMessage);
 			}
