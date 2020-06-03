@@ -11,8 +11,9 @@ public class WordGameServer {
 	public WordGameServer() {
 		m_serverStub = new CMServerStub();
 		wordDB = new WordDB();
-		checker = new WordConstraintsChecker(wordDB);
-		m_eventHandler = new WordGameEventHandler(m_serverStub, checker);
+//		checker = new WordConstraintsChecker(wordDB);
+//		m_eventHandler = new WordGameEventHandler(m_serverStub, checker);
+		m_eventHandler = new WordGameEventHandler(m_serverStub);
 	}
 	
 	public CMServerStub getServerStub() {

@@ -128,6 +128,10 @@ public class WordGameClient
 		// when server send first word
 		// game#server#firstWord#[exampleword]
 		// 
+		// when server check  constraint
+		// is valid message = game#server#gameword#validmessage
+		// is nonvalid message = game#server#gameword#nonvalidmessage
+		
 	}
 	
 	public void tranferLobby()
