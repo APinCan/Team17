@@ -40,7 +40,7 @@ public class WordConstraintsChecker {
 ////		return word;
 	}
 	
-	public String getFirstString() {
+	public String getString() {
 		String first = wordDB.selectFirstString();
 		
 		setWordLengthConstraints(first.length());
@@ -117,14 +117,18 @@ public class WordConstraintsChecker {
 		return ret;
 	}
 
-	
 	public boolean checkConstraints(String wordBefore, String wordAfter) {
 		boolean ret=false;
 		this.wordBefore=wordBefore;	
 //		ret = this.checkConstraints(wordAfter);
 		
 		return ret;
+	}
+	
+	public String getNextServerWord() {	
+		String nextWord = wordDB.getCorrectWord(wordBefore.charAt(wordBefore.length()-1));
 		
+		return nextWord;
 	}
 	
 }

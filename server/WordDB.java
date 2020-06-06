@@ -52,11 +52,10 @@ public class WordDB {
 	}
 	
 	public String selectFirstString() {
-		Random random = new Random();
 		String firstString = null;
 		int randIdx;
 		
-		randIdx = random.nextInt(dbLength);
+		randIdx = new Random().nextInt(dbLength);
 		firstString = wordDB.get(randIdx);
 		
 		return firstString; 
@@ -69,5 +68,19 @@ public class WordDB {
 		else {
 			return false;
 		}
+	}
+	
+	public String getCorrectWord(char charWord) {
+		ArrayList<String> tmpList = new ArrayList<String>();
+		
+		for(int i=0; i< wordDB.size(); i++) {
+			if(wordDB.get(i).charAt(0)==charWord) {
+				tmpList.add(wordDB.get(i));
+			}
+		}
+		
+		int idx = new Random().nextInt(tmpList.size());
+		
+		return tmpList.get(idx);
 	}
 }

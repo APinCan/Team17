@@ -25,6 +25,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 	private WordConstraintsChecker[] checker = new WordConstraintsChecker[10];
 	private TimerThread[] timerThread = new TimerThread[10];
 	private boolean[] timerFlags = new boolean[10];
+	private int[] groupMembers = new int[10];
 //	private String[] beforeWord = new String[10];
 //	private int[] constraintsWordLength = new int[10];
 //	private ArrayList<String> wordHistory = new ArrayList<String>();\
@@ -34,6 +35,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 		m_serverStub = serverStub;
 		Arrays.fill(gameStartFlags, false);
 		Arrays.fill(timerFlags, false);
+		Arrays.fill(groupMembers, 0);
 //		Arrays.fill(checker, new WordConstraintsChecker(new WordDB));
 		for(int i=1; i<10; i++) {
 			this.checker[i]= new WordConstraintsChecker(new WordDB());
@@ -139,6 +141,11 @@ public class WordGameEventHandler implements CMAppEventHandler {
 //						gameCanStart=true;
 					if(gInfo.getGroupUsers().getMemberNum()==2) {
 //						gameStartFlags[groupIdx]=true;
+						groupMembers[groupIdx]=2;
+						break;
+					}
+					else if(gInfo.getGroupUsers().getMemberNum()==1) {
+						groupMembers[groupIdx]=1;
 						break;
 					}
 				}
@@ -165,7 +172,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 //					server send first word message to group
 //					
 					dummySendMessage = "game#server#firstWord#";
-					firstString = checker[groupIdx].getFirstString();
+					firstString = checker[groupIdx].getString();
 //					server save firstWord and length constraints
 //					beforeWord[groupIdx] = firstString;
 //					constraintsWordLength[groupIdx] = firstString.length();
@@ -206,61 +213,103 @@ public class WordGameEventHandler implements CMAppEventHandler {
 				
 				
 //				System.out.println("PR, timerTrhead alive "+timerThread[groupIdx].isAlive());
-				
-				if(isValid) {
-//					client message sent before is valid
+				if(groupMembers[groupIdx]==2) {
+					if(isValid) {
+//						client message sent before is valid
 
-//					if true = timer is off then timer on
-//					if(!timerThread[groupIdx].isAlive()) {
-					if(!timerFlags[groupIdx]) {
-						System.out.println("PR, thread not alived");
-						timerThread[groupIdx] = new TimerThread(groupIdx);
+//						if true = timer is off then timer on
+//						if(!timerThread[groupIdx].isAlive()) {
+						if(!timerFlags[groupIdx]) {
+							System.out.println("PR, thread not alived");
+							timerThread[groupIdx] = new TimerThread(groupIdx);
+							
+							dummySendMessage="game#serever#gameword"+getMessage[3];
+							sendDue.setDummyInfo(dummySendMessage);
+							m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
+							
+							timerThread[groupIdx].start();
+							timerFlags[groupIdx] = true;
+//							System.out.println("PR, timer is alive "+timerThread[groupIdx].isAlive());
+						}
+//						if interrupt false = timer is on the timer off, rerun
+						else {
+							System.out.println("PR, server receive word");
+							timerThread[groupIdx].interrupt();
+							
+							dummySendMessage="game#serever#gameword"+getMessage[3];
+							sendDue.setDummyInfo(dummySendMessage);
+							m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
+
+							timerThread[groupIdx] = new TimerThread(groupIdx);
+							timerThread[groupIdx].start();
+						}
+//						for send to other group member
+//						dummySendMessage="game#serever#gameword"+getMessage[3];
+//						sendDue.setDummyInfo(dummySendMessage);
+//						m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
 						
-						dummySendMessage="game#serever#gameword"+getMessage[3];
-						sendDue.setDummyInfo(dummySendMessage);
-						m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
-						
-						timerThread[groupIdx].start();
-						timerFlags[groupIdx] = true;
-//						System.out.println("PR, timer is alive "+timerThread[groupIdx].isAlive());
+						dummySendMessage="game#server#validmessage";
+
 					}
-//					if interrupt false = timer is on the timer off, rerun
 					else {
-						System.out.println("PR, server receive word");
-						timerThread[groupIdx].interrupt();
+//						client message sent before is non-valid
+						dummySendMessage="game#server#nonvalidmessage";
 						
-						dummySendMessage="game#serever#gameword"+getMessage[3];
-						sendDue.setDummyInfo(dummySendMessage);
-						m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
-
-						timerThread[groupIdx] = new TimerThread(groupIdx);
-						timerThread[groupIdx].start();
+//						if game word is not valid send interrupt
+						System.out.println("PR, word is not correct");
+						timerThread[groupIdx].interrupt();
+						timerFlags[groupIdx] = false;
 					}
-//					for send to other group member
-//					dummySendMessage="game#serever#gameword"+getMessage[3];
-//					sendDue.setDummyInfo(dummySendMessage);
-//					m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
 					
-					dummySendMessage="game#server#validmessage";
-
+//					sendToClient(sendDue, due);
+//					message is valid or nonvalid send to group members
+					sendDue.setDummyInfo(dummySendMessage);
+					m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
+					
+					System.out.println("PR, send word to client "+dummySendMessage);
 				}
 				else {
-//					client message sent before is non-valid
-					dummySendMessage="game#server#nonvalidmessage";
+					if(isValid) {
+						if(!timerFlags[groupIdx]) {
+							System.out.println("PR, thread not alived");
+						}
+
+						else {
+							System.out.println("PR, server receive word");
+							timerThread[groupIdx].interrupt();
+							
+						}
+						dummySendMessage="game#server#validmessage";
+						sendDue.setDummyInfo(dummySendMessage);
+						m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
+						
+						String serverWord = checker[groupIdx].getNextServerWord();
+						dummySendMessage="game#server#gameword#"+serverWord;
+						sendDue.setDummyInfo(dummySendMessage);
+						
+						m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
+						timerThread[groupIdx] = new TimerThread(groupIdx);
+						timerThread[groupIdx].start();
+						timerFlags[groupIdx] = true;
+					}
+					else {
+						dummySendMessage="game#server#nonvalidmessage";
+						sendDue.setDummyInfo(dummySendMessage);
+						m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
+						
+//						if game word is not valid send interrupt
+						System.out.println("PR, word is not correct");
+						timerThread[groupIdx].interrupt();
+						timerFlags[groupIdx] = false;
+					}
 					
-//					if game word is not valid send interrupt
-					System.out.println("PR, word is not correct");
-					timerThread[groupIdx].interrupt();
-					timerFlags[groupIdx] = false;
+
+					
+					System.out.println("PR, send word to client "+dummySendMessage);
+	
 				}
-				
-//				sendToClient(sendDue, due);
-//				message is valid or nonvalid send to group members
-				sendDue.setDummyInfo(dummySendMessage);
-				m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
-				
-				System.out.println("PR, send word to client "+dummySendMessage);
 			}
+			
 
 		}
 
