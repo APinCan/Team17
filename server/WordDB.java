@@ -19,7 +19,7 @@ public class WordDB {
 	
 	private void initWordDB() {
 		BufferedReader br;
-		String path = "./data/kp_korean-noun.csv";
+		String path = "./data/kr_korean-noun.csv";
 		int i=0;
 
 		try {
