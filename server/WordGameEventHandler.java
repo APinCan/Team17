@@ -182,7 +182,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 						if(!timerFlags[groupIdx]) {
 							System.out.println("PR, timer is not alived");
 							
-							timerThread[groupIdx] = new TimerThread(groupIdx);
+							timerThread[groupIdx] = new TimerThread(groupIdx, m_serverStub, due.getHandlerGroup());
 							dummySendMessage="game#serever#gameword"+getMessage[3];
 							sendDue.setDummyInfo(dummySendMessage);
 //							if game word pass constraints then re-send to group
@@ -202,7 +202,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 //							if game word pass constraints then re-send to group
 							m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
 
-							timerThread[groupIdx] = new TimerThread(groupIdx);
+							timerThread[groupIdx] = new TimerThread(groupIdx, m_serverStub, due.getHandlerGroup());
 							timerThread[groupIdx].start();
 						}
 
@@ -253,7 +253,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 						sendDue.setDummyInfo(dummySendMessage);
 						
 						m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
-						timerThread[groupIdx] = new TimerThread(groupIdx);
+						timerThread[groupIdx] = new TimerThread(groupIdx, m_serverStub, due.getHandlerGroup());
 						timerThread[groupIdx].start();
 //						timerFlags[groupIdx] = true;
 					}
@@ -320,12 +320,20 @@ public class WordGameEventHandler implements CMAppEventHandler {
 //	timer thread for word game
 	public class TimerThread extends Thread{
 		private int groupIdx;
+		private CMServerStub m_serverStub;
+		private String groupName;
+		private CMDummyEvent event = new CMDummyEvent();
 		
 		TimerThread(){
 		}
 		
-		TimerThread(int groupIdx){
+		TimerThread(int groupIdx, CMServerStub serverStub, String groupName){
 			this.groupIdx = groupIdx;
+			this.m_serverStub = serverStub;
+			this.groupName = groupName;
+			
+			event.setHandlerGroup("SERVER");
+			event.setHandlerSession("SERVER");
 		}
 
 		public void run() {
@@ -333,6 +341,10 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			try {
 				System.out.println("PR, thread start idx "+groupIdx);
 				Thread.sleep(5000);
+				String dummyMessage = "game#server#timerExpire";
+				event.setDummyInfo(dummyMessage);
+				
+				m_serverStub.cast(event, "session1", groupName);
 				System.out.println("PR, timer expired");
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

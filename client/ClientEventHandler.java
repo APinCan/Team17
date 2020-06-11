@@ -137,6 +137,26 @@ public class ClientEventHandler implements CMAppEventHandler
 	{
 		CMDummyEvent due = (CMDummyEvent) cme;
 		//서버이벤트핸들러에서  서버내 끝말잇기 메소드 호출
+		
+		// 
+		// when client press game start button, 
+		// game#server#gamestart
+		// game#server#gameword#firstWord#[word]
+		
+		// when client can not start game
+		// game#server#notstartgame
+		
+		// when client send word to server, then server resend message to group
+		// game#server#gameword#[word]
+		// game#server#gameword#validmessage
+		// if client word is not valid
+		// game#server#gameword#[word]
+		// game#server#gameword#nonvalidmessage
+		
+		// when client violate 5senconds rule
+		// game#server#timeExpire
+		
+		
 		return;
 	}
 	
