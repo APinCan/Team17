@@ -30,7 +30,7 @@ public class WordDB {
 				String line1[] = line.split(",", -1);
 				
 				
-				if(line1[1].equals("¸í»ç") || line1[1].equals("´ë¸í»ç")) {
+				if(line1[1].equals("ëª…ì‚¬") || line1[1].equals("ëŒ€ëª…ì‚¬")) {
 					wordDB.add(line1[0]);
 //					System.out.println(i+"  "+line1[0]);
 					i++;
