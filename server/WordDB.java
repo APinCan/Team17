@@ -29,6 +29,7 @@ public class WordDB {
 			while((line = br.readLine()) != null){
 				String line1[] = line.split(",", -1);
 				
+				
 				if(line1[1].equals("명사") || line1[1].equals("대명사")) {
 					wordDB.add(line1[0]);
 //					System.out.println(i+"  "+line1[0]);

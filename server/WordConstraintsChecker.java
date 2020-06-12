@@ -106,10 +106,10 @@ public class WordConstraintsChecker {
 			return false; // if not word game
 		}
 		// check word list
-//		else if(!wordDB.contains(wordAfter)) {
-//			System.out.println("break word list rule"+"  "+wordAfter);
-//			return false; // if not contain wordAfter
-//		}
+		else if(!wordDB.contains(wordAfter)) {
+			System.out.println("break word list rule"+"  "+wordAfter);
+			return false; // if not contain wordAfter
+		}
 		
 		wordHistory.add(wordAfter);
 		this.wordBefore = wordAfter;
