@@ -18,6 +18,7 @@ public class WordConstraintsChecker {
 	private WordDB wordDB;
 	private ArrayList<String> wordHistory = new ArrayList<String>();
 	private int wordLengthConstraint;
+	private boolean lengthConstraintFlag=false;
 	
 	public WordConstraintsChecker() {
 	}
@@ -55,46 +56,17 @@ public class WordConstraintsChecker {
 		this.wordLengthConstraint = wordLength;
 	}
 	
-//	public boolean checkConstraints(String wordBefore, String wordAfter, int wordLength) {
-//		boolean ret = true;
-////		this.wordAfter=wordAfter;
-//		
-//		// word length constraint
-////		if(wordLength != wordAfter.length()) {
-////			ret = false; // if length different
-////			System.out.println("break word length rule");
-////		}
-//		// word history constraint
-//		if(wordHistory.contains(this.wordAfter)) {
-//			ret = false; // if wordHistory have wordAfter
-//			System.out.println("break word history rule");
-//		}
-//		// check correct word game
-//		else if(this.wordBefore.charAt(this.wordBefore.length()-1) != this.wordAfter.charAt(0)) {
-//			ret = false; // if not word game
-//			System.out.println("break word correct rule");
-//		}
-//		// check word list
-//		else if(!wordDB.contains(this.wordAfter)) {
-//			ret = false; // if not contain wordAfter
-//			System.out.println("break word list rule"+"  "+this.wordAfter);
-//		}
-//		
-//		wordHistory.add(wordAfter);
-//		this.wordBefore = this.wordAfter;
-//		
-//		return ret;
-//	}
-	
 	public boolean checkConstraints(String wordAfter) {
 		boolean ret = true;
 //		this.wordAfter=wordAfter;
 		
 		// word length constraint
-//		if(wordLengthConstraint != wordAfter.length()) {
+		if(lengthConstraintFlag) {
+//			if(wordLengthConstraint != wordAfter.length()) {
 //			System.out.println("break word length rule");
 //			return false; // if length different
-//		}
+//			}
+		}
 		// word history constraint
 		if(wordHistory.contains(wordAfter)) {
 			System.out.println("break word history rule");

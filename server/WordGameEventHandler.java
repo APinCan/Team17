@@ -124,12 +124,48 @@ public class WordGameEventHandler implements CMAppEventHandler {
 				groupIdx++;
 			}
 			
+			/*
+			if(due.getID() == 111)
+			{
+				String Rnum = due.getDummyInfo();
+				int n = Integer.parseInt(Rnum);
+				int temp = groupMembers[n];
+				
+				sendDue.setID(222);
+				
+				if((temp<2)&&(gameStartFlags[n]==false))
+				{
+					sendDue.setDummyInfo("t");
+				}
+				else
+				{
+					sendDue.setDummyInfo("f");
+				}
+				
+				m_serverStub.send(sendDue, due.getSender());
+				
+			}
+			*/
+			if(getMessage[2].equals("room")) {
+				if(groupMembers[groupIdx] < 2 && gameStartFlags[groupIdx]==false) {			
+					dummySendMessage = "game#server#room#true";
+				}
+				else {
+					dummySendMessage = "game#server#room#false";
+				}
+				
+				sendDue.setHandlerGroup("SERVER");
+				sendDue.setHandlerSession("SERVER");
+				sendDue.setDummyInfo(dummySendMessage);
+				m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
+	
+			}
 //			if get game start message
-			if(getMessage[2].equals("gamestart")) {
+			else if(getMessage[2].equals("gamestart")) {
 //				if not start game yet
 				if(gameStartFlags[groupIdx]==false) {
 					CMDummyEvent firstWordDue = new CMDummyEvent();
-					String firstString;					
+					String firstWord;					
 					dummySendMessage = "game#server#startgame";
 					
 					sendDue.setHandlerGroup("SERVER");
@@ -140,9 +176,9 @@ public class WordGameEventHandler implements CMAppEventHandler {
 					m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
 
 					dummySendMessage = "game#server#firstWord#";
-					firstString = checker[groupIdx].getString();
+					firstWord = checker[groupIdx].getString();
 				
-					dummySendMessage = dummySendMessage+firstString;
+					dummySendMessage = dummySendMessage+firstWord;
 					firstWordDue.setHandlerGroup("SERVER");
 					firstWordDue.setHandlerSession("SERVER");
 					firstWordDue.setDummyInfo(dummySendMessage);
@@ -273,7 +309,14 @@ public class WordGameEventHandler implements CMAppEventHandler {
 	
 				}
 			}
-			
+			else if(getMessage[2].equals("constraints")) {
+				if(getMessage[3].equals("on")) {
+					
+				}
+				else {
+					
+				}
+			}
 		}
 
 		return;

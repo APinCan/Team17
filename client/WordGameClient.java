@@ -170,12 +170,18 @@ class WordGameClient extends JFrame
 			btnRoom.setBounds(20, 25, 170, 98);
 			btnRoom.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					m_clientStub.changeGroup("g2");
-					viewT = 2;
-					changePan();
-					setTitle("Room 1");
-					textPane.setText("");
-					textPane_1.setText("");
+//					if(RoomInfo(2)==true)
+//					{
+						m_clientStub.changeGroup("g2");
+						viewT = 2;
+						changePan();
+						setTitle("Room 1");
+						textPane.setText("");
+						textPane_1.setText("");
+//					}
+//					else
+//						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+							
 				}
 			});
 			add(btnRoom);
@@ -184,12 +190,18 @@ class WordGameClient extends JFrame
 			btnRoom_2.setBounds(216, 25, 170, 98);
 			btnRoom_2.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					m_clientStub.changeGroup("g3");		
+//					if(RoomInfo(3)==true)
+//					{
+						m_clientStub.changeGroup("g3");
 						viewT = 2;
 						changePan();
 						setTitle("Room 2");
 						textPane.setText("");
 						textPane_1.setText("");
+//					}
+//					else
+//						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+						
 				}
 			});
 			add(btnRoom_2);
@@ -198,12 +210,18 @@ class WordGameClient extends JFrame
 			btnRoom_3.setBounds(410, 25, 170, 98);
 			btnRoom_3.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					m_clientStub.changeGroup("g4");		
+//					if(RoomInfo(4)==true)
+//					{
+						m_clientStub.changeGroup("g4");
 						viewT = 2;
 						changePan();
 						setTitle("Room 3");
 						textPane.setText("");
 						textPane_1.setText("");
+//					}
+//					else
+//						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+						
 				}
 			});
 			add(btnRoom_3);
@@ -212,7 +230,8 @@ class WordGameClient extends JFrame
 			btnLogOut.setBounds(420, 332, 80, 30);
 			btnLogOut.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-						LogOut();		
+						LogOut();
+						textPane_1.setText("");
 						viewT = 0;
 						changePan();
 						setTitle("Log In");
@@ -258,9 +277,10 @@ class WordGameClient extends JFrame
 						JTextField input = (JTextField)e.getSource();
 						String strMessage = input.getText();
 						String strTarget = "/g";
+						//chat
 						m_clientStub.chat(strTarget, strMessage);
 						//더미 이벤트
-						sendToServer(strMessage);
+						sendToServer("game#server#gameword#firstWord#"+strMessage);
 						
 						input.setText("");
 						input.requestFocus();
@@ -279,7 +299,7 @@ class WordGameClient extends JFrame
 			btnStart.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					String strTarget = "/g";
-					m_clientStub.chat(strTarget, "is ready to start.");
+					//m_clientStub.chat(strTarget, "is ready to start.");
 					//더미이벤트
 					startGame();
 				}
@@ -337,8 +357,6 @@ class WordGameClient extends JFrame
 	 */
 	public WordGameClient() 
 	{
-		
-		
 		m_clientStub = new CMClientStub();
 		m_eventHandler = new ClientEventHandler(m_clientStub, this);
 
@@ -360,23 +378,18 @@ class WordGameClient extends JFrame
 		{
 			setVisible(true);
 		}
-		
-		
-
 	}
 
 	public boolean StartCM()
 	{
 		boolean bRet = false;
 		
-		// get current server info from the server configuration file
 		String strCurServerAddress = null;
 		int nCurServerPort = -1;
 		
 		strCurServerAddress = m_clientStub.getServerAddress();
 		nCurServerPort = m_clientStub.getServerPort();
 		
-		// ask the user if he/she would like to change the server info
 		JTextField serverAddressTextField = new JTextField(strCurServerAddress);
 		JTextField serverPortTextField = new JTextField(String.valueOf(nCurServerPort));
 		Object msg[] = {
@@ -385,7 +398,6 @@ class WordGameClient extends JFrame
 		};
 		int option = JOptionPane.showConfirmDialog(null, msg, "Server Information", JOptionPane.OK_CANCEL_OPTION);
 
-		// update the server info if the user would like to do
 		if (option == JOptionPane.OK_OPTION) 
 		{
 			String strNewServerAddress = serverAddressTextField.getText();
@@ -437,7 +449,6 @@ class WordGameClient extends JFrame
 		else
 			JOptionPane.showMessageDialog(null, "failed the login request!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 
-		// Change the title of the login button
 		setTitle("Log In");
 	}
 	
@@ -469,22 +480,6 @@ class WordGameClient extends JFrame
 		
 		return;
 	}
-	
-	public void printStyledMessage(String strText, String strStyleName)
-	{
-		StyledDocument doc = textPane.getStyledDocument();
-		try {
-			doc.insertString(doc.getLength(), strText, doc.getStyle(strStyleName));
-			textPane.setCaretPosition(textPane.getDocument().getLength());
-
-		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return;
-	}
-	
 	private void comboTarget(String str)
 	{
 		if(str == "All")
@@ -519,9 +514,8 @@ class WordGameClient extends JFrame
 	public void sendToServer(String input)
 	{
 		CMDummyEvent due = new CMDummyEvent();
-		//CMDummyEvent rdue = new CMDummyEvent();
+		CMDummyEvent rdue = new CMDummyEvent();
 		
-		due.setID(111);
 		due.setDummyInfo(input);
 		String strTarget = "SERVER";
 		m_clientStub.send(due, strTarget);
@@ -533,12 +527,33 @@ class WordGameClient extends JFrame
 	{
 		CMDummyEvent due = new CMDummyEvent();
 		
-		//서버이벤트핸들러 getid==3일때 루틴 호출
-		due.setID(333);
+		due.setDummyInfo("game#server#gamestart");
 		String strTarget = "SERVER";
 		m_clientStub.send(due, strTarget);
 	}
 	
+	//수정 필요. 숫자뿐만 아니라 게임 시작중인지도 함께 연산하여 리턴시켜야 함
+	public boolean RoomInfo(int num)
+	{
+		CMDummyEvent due = new CMDummyEvent();
+		CMDummyEvent rdue = new CMDummyEvent();
+		String tmp = num+"";
+		
+		due.setID(111);
+		due.setDummyInfo(tmp);
+		//due.setDummyInfo(num);
+		String strTarget = "SERVER";
+		m_clientStub.send(due, strTarget);
+		
+		rdue = (CMDummyEvent) m_clientStub.sendrecv(due, strTarget, CMInfo.CM_DUMMY_EVENT, 222, 5000);
+		
+		String flag = rdue.getDummyInfo();
+		
+		if(flag == "t")
+			return true;
+		else
+			return false;
+	}
 	/**
 	 * Launch the application.
 	 */
@@ -550,6 +565,3 @@ class WordGameClient extends JFrame
 		cmStub.setAppEventHandler(client.getClientEventHandler());
 	}
 }
-
-
-
