@@ -125,6 +125,8 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			}
 
 			if(getMessage[2].equals("room")) {
+//				String temp = getMessage[3]; 
+//				groupIdx = Integer.getInteger(temp);
 				if(groupMembers[groupIdx] < 2 && gameStartFlags[groupIdx]==false) {			
 					dummySendMessage = "game#server#room#true";
 				}
@@ -136,7 +138,12 @@ public class WordGameEventHandler implements CMAppEventHandler {
 				sendDue.setHandlerGroup("SERVER");
 				sendDue.setHandlerSession("SERVER");
 				sendDue.setDummyInfo(dummySendMessage);
-				m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
+//				m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
+				boolean ret = m_serverStub.send(sendDue, due.getSender());
+				if(ret) {
+					System.out.println("PR, event to sender room event");
+				}
+				
 				System.out.println("PR, "+dummySendMessage+" is send");
 	
 			}

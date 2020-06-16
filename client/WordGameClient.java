@@ -173,7 +173,7 @@ class WordGameClient extends JFrame
 			btnRoom.setBounds(20, 25, 170, 98);
 			btnRoom.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					boolean fg = RoomInfo();
+					boolean fg = RoomInfo(2);
 					if(fg == true)
 					{
 						m_clientStub.changeGroup("g2");
@@ -195,10 +195,10 @@ class WordGameClient extends JFrame
 			btnRoom_2.setBounds(216, 25, 170, 98);
 			btnRoom_2.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					boolean fg = RoomInfo();
+					boolean fg = RoomInfo(3);
 					if(fg == true)
 					{
-						m_clientStub.changeGroup("g2");
+						m_clientStub.changeGroup("g3");
 						viewT = 2;
 						changePan();
 						setTitle("Room 1");
@@ -217,10 +217,10 @@ class WordGameClient extends JFrame
 			btnRoom_3.setBounds(410, 25, 170, 98);
 			btnRoom_3.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					boolean fg = RoomInfo();
+					boolean fg = RoomInfo(4);
 					if(fg == true)
 					{
-						m_clientStub.changeGroup("g2");
+						m_clientStub.changeGroup("g4");
 						viewT = 2;
 						changePan();
 						setTitle("Room 1");
@@ -566,18 +566,18 @@ class WordGameClient extends JFrame
 	
 	}
 
-	private boolean RoomInfo()
+	private boolean RoomInfo(int num)
 	{
 		CMDummyEvent due = new CMDummyEvent();
 		CMDummyEvent rdue = new CMDummyEvent();
 		
 		String sender = m_clientStub.getMyself().getName();
 		
-		due.setDummyInfo("game#"+sender+"#room");
+		due.setDummyInfo("game#"+sender+"#room#"+num);
 		String strTarget = "SERVER";
 		m_clientStub.send(due, strTarget);
 		
-		rdue = (CMDummyEvent) m_clientStub.sendrecv(due, strTarget, CMInfo.CM_DUMMY_EVENT, 222, 1000);
+		rdue = (CMDummyEvent) m_clientStub.sendrecv(due, strTarget, CMInfo.CM_DUMMY_EVENT, 222, 10000);
 		
 		
 		String[] getMessage = rdue.getDummyInfo().split("#");
