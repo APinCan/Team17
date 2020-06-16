@@ -63,6 +63,8 @@ public class WordConstraintsChecker {
 	public boolean checkConstraints(String wordAfter) {
 		boolean ret = true;
 //		this.wordAfter=wordAfter;
+		System.out.println("PR, word Before "+this.wordBefore);
+		System.out.println("PR, lengthflag = "+this.lengthConstraintFlag);
 		
 		// word length constraint
 		if(lengthConstraintFlag) {
@@ -73,17 +75,17 @@ public class WordConstraintsChecker {
 		}
 		// word history constraint
 		if(wordHistory.contains(wordAfter)) {
-			System.out.println("break word history rule");
+			System.out.println("PR, break word history rule");
 			return false; // if wordHistory have wordAfter
 		}
 		// check correct word game
 		else if(this.wordBefore.charAt(this.wordBefore.length()-1) != wordAfter.charAt(0)) {
-			System.out.println("break word correct rule");
+			System.out.println("PR, break word correct rule");
 			return false; // if not word game
 		}
 		// check word list
 		else if(!wordDB.contains(wordAfter)) {
-			System.out.println("break word list rule"+"  "+wordAfter);
+			System.out.println("PR, break word list rule"+"  "+wordAfter);
 			return false; // if not contain wordAfter
 		}
 		
@@ -103,6 +105,8 @@ public class WordConstraintsChecker {
 	
 	public String getNextServerWord() {	
 		String nextWord = wordDB.getCorrectWord(wordBefore.charAt(wordBefore.length()-1));
+		
+		checkConstraints(nextWord);
 		
 		return nextWord;
 	}
