@@ -325,24 +325,24 @@ class WordGameClient extends JFrame
 			});
 			topButtonPanel.add(btnStart);
 			
-			JToggleButton btnOnOff = new JToggleButton("Constraint on");
-			btnOnOff.setBounds(500, 342, 80, 30);
-			btnOnOff.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					if(btnOnOff.isSelected())
-					{
-						String sender = m_clientStub.getMyself().getName();
-						sendToServer("game#"+sender+"#constraints#on", m_clientStub.getMyself().getCurrentGroup());
-					}
-					else
-					{
-						String sender = m_clientStub.getMyself().getName();
-						sendToServer("game#"+sender+"#constraints#off", m_clientStub.getMyself().getCurrentGroup());
-					}
-					
-				}
-			});
-			topButtonPanel.add(btnOnOff);
+//			JToggleButton btnOnOff = new JToggleButton("Constraint on");
+//			btnOnOff.setBounds(500, 342, 80, 30);
+//			btnOnOff.addActionListener(new ActionListener() {
+//				public void actionPerformed(ActionEvent e) {
+//					if(btnOnOff.isSelected())
+//					{
+//						String sender = m_clientStub.getMyself().getName();
+//						sendToServer("game#"+sender+"#constraints#on", m_clientStub.getMyself().getCurrentGroup());
+//					}
+//					else
+//					{
+//						String sender = m_clientStub.getMyself().getName();
+//						sendToServer("game#"+sender+"#constraints#off", m_clientStub.getMyself().getCurrentGroup());
+//					}
+//					
+//				}
+//			});
+//			topButtonPanel.add(btnOnOff);
 			
 			JButton btnExit_2 = new JButton("Exit");
 			btnExit_2.setBounds(500, 342, 80, 30);

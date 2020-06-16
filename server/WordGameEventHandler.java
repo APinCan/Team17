@@ -8,6 +8,7 @@ import java.util.Vector;
 import kr.ac.konkuk.ccslab.cm.entity.CMGroup;
 import kr.ac.konkuk.ccslab.cm.entity.CMSession;
 import kr.ac.konkuk.ccslab.cm.entity.CMUser;
+import kr.ac.konkuk.ccslab.cm.event.CMDataEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMInterestEvent;
@@ -51,6 +52,10 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			case CMInfo.CM_INTEREST_EVENT:
 				processInterestEvent(cme);
 				break;
+			case CMInfo.CM_DATA_EVENT:
+				processDataEvent(cme);
+				break;
+				
 			
 			default:
 				return;
@@ -109,6 +114,8 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			
 			while(iter.hasNext()) {
 				CMGroup gInfo = iter.next();
+				System.out.println("PR, gInfo members: "+gInfo.getGroupUsers().getMemberNum());
+
 				
 				if(gInfo.getGroupName().equals(due.getHandlerGroup())) {
 					if(gInfo.getGroupUsers().getMemberNum()==2) {
@@ -121,14 +128,17 @@ public class WordGameEventHandler implements CMAppEventHandler {
 					}
 					else if(gInfo.getGroupUsers().getMemberNum()>2) {
 						groupMembers[groupIdx]=3;
+						break;
 					}
 					else if(gInfo.getGroupUsers().getMemberNum()==0) {
 						groupMembers[groupIdx]=0;
+						break;
 					}
 				}
 				
 				groupIdx++;
 			}
+			System.out.println("PR, groupmembers : "+groupMembers[groupIdx]);
 
 			if(getMessage[2].equals("room")) {
 //				String temp = getMessage[3]; 
@@ -363,6 +373,11 @@ public class WordGameEventHandler implements CMAppEventHandler {
 				return;
 				
 		}
+	}
+	
+	private void processDataEvent(CMEvent cme) {
+		CMDataEvent de = (CMDataEvent) cme;
+
 	}
 
 //	timer thread for word game
