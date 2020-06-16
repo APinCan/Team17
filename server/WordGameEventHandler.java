@@ -310,11 +310,17 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			}
 			else if(getMessage[2].equals("constraints")) {
 				if(getMessage[3].equals("on")) {
-					
+					checker[groupIdx].setLengthConstraintFlag(true);
 				}
 				else {
-					
+					checker[groupIdx].setLengthConstraintFlag(false);
 				}
+			}
+			else if(getMessage[2].equals("gameover")) {
+				checker[groupIdx].setLengthConstraintFlag(false);
+				gameStartFlags[groupIdx] = false;
+				timerThread[groupIdx].interrupt();
+				timerFlags[groupIdx] = false;
 			}
 		}
 
@@ -383,7 +389,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			try {
 				System.out.println("PR, thread start idx "+groupIdx);
 				Thread.sleep(5000);
-				String dummyMessage = "game#server#timerExpire";
+				String dummyMessage = "game#server#timeExpire";
 				event.setDummyInfo(dummyMessage);
 				
 				m_serverStub.cast(event, "session1", groupName);

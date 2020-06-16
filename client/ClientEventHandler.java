@@ -137,9 +137,10 @@ public class ClientEventHandler implements CMAppEventHandler
 	private void processDummyEvent(CMEvent cme)
 	{
 		CMDummyEvent due = (CMDummyEvent) cme;
+		CMDummyEvent rdue = new CMDummyEvent();
 		
 		String[] getMessage = due.getDummyInfo().split("#");
-		System.out.println("IPR, getMessage");
+		System.out.println("IPR, getMessage "+getMessage[0]+" "+getMessage[1]+" "+getMessage[2]);
 		
 		if(getMessage[2].equals("startgame")) 
 		{
@@ -159,22 +160,30 @@ public class ClientEventHandler implements CMAppEventHandler
 			RprintMessage(getMessage[3]+" is available."+"\n");
 		}
 		
-		if(getMessage[2].equals("nonvalidmessage"))
-		{
-			RprintMessage(getMessage[3]+" is not valid."+"\n");
-			//재입력 요구
-		}
-
+//		if(getMessage[2].equals("nonvalidmessage"))
+//		{
+//			RprintMessage(getMessage[3]+" is not valid."+"\n");
+//			//재입력 요구
+//		}
 		
 		if(getMessage[2].equals("notstartgame")) 
 		{
 			JOptionPane.showMessageDialog(null, "Can not start game!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 		}
 		
-		if(getMessage[2].equals("timeExpire")) 
+		if(getMessage[2].equals("timeExpire") || getMessage[2].equals("nonvalidmessage")) 
 		{
 			m_client.setFlag(false);
 			RprintMessage("Game Over!");
+			
+			String strTarget = "SERVER";
+			String sender = m_clientStub.getMyself().getName();
+			String cgroup = m_clientStub.getMyself().getCurrentGroup();
+			
+			rdue.setHandlerSession("session1");
+			rdue.setHandlerGroup(cgroup);
+			rdue.setDummyInfo("game#"+sender+"#gameover");
+			m_clientStub.send(rdue, strTarget);
 			//스타트 버튼 활성
 		}	
 		

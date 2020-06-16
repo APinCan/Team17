@@ -332,12 +332,12 @@ class WordGameClient extends JFrame
 					if(btnOnOff.isSelected())
 					{
 						String sender = m_clientStub.getMyself().getName();
-						sendToServer("game#"+sender+"#constraints#on");
+						sendToServer("game#"+sender+"#constraints#on", m_clientStub.getMyself().getCurrentGroup());
 					}
 					else
 					{
 						String sender = m_clientStub.getMyself().getName();
-						sendToServer("game#"+sender+"#constraints#off");
+						sendToServer("game#"+sender+"#constraints#off", m_clientStub.getMyself().getCurrentGroup());
 					}
 					
 				}

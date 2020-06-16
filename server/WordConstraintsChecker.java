@@ -52,6 +52,10 @@ public class WordConstraintsChecker {
 		return first;
 	}
 	
+	public void setLengthConstraintFlag(boolean flag) {
+		this.lengthConstraintFlag = flag;
+	}
+	
 	private void setWordLengthConstraints(int wordLength) {
 		this.wordLengthConstraint = wordLength;
 	}
