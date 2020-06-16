@@ -176,7 +176,7 @@ class WordGameClient extends JFrame
 					boolean fg = RoomInfo(2);
 					if(fg == true)
 					{
-						m_clientStub.changeGroup("g2");
+//						m_clientStub.changeGroup("g2");
 						viewT = 2;
 						changePan();
 						setTitle("Room 1");
@@ -185,6 +185,7 @@ class WordGameClient extends JFrame
 					}
 					else
 					{
+						m_clientStub.changeGroup("g1");
 						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 					}
 				}
@@ -198,7 +199,7 @@ class WordGameClient extends JFrame
 					boolean fg = RoomInfo(3);
 					if(fg == true)
 					{
-						m_clientStub.changeGroup("g3");
+//						m_clientStub.changeGroup("g3");
 						viewT = 2;
 						changePan();
 						setTitle("Room 1");
@@ -207,6 +208,7 @@ class WordGameClient extends JFrame
 					}
 					else
 					{
+						m_clientStub.changeGroup("g1");
 						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 					}
 				}
@@ -220,7 +222,7 @@ class WordGameClient extends JFrame
 					boolean fg = RoomInfo(4);
 					if(fg == true)
 					{
-						m_clientStub.changeGroup("g4");
+//						m_clientStub.changeGroup("g4");
 						viewT = 2;
 						changePan();
 						setTitle("Room 1");
@@ -229,6 +231,7 @@ class WordGameClient extends JFrame
 					}
 					else
 					{
+						m_clientStub.changeGroup("g1");
 						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 					}
 				}
@@ -292,7 +295,7 @@ class WordGameClient extends JFrame
 						
 						if(Sflag == true)
 						{
-							sendToServer("game#"+sender+"#gameword#"+strMessage);
+							sendToServer("game#"+sender+"#gameword#"+strMessage, m_clientStub.getMyself().getCurrentGroup());
 						}
 
 						input.setText("");
@@ -314,7 +317,7 @@ class WordGameClient extends JFrame
 					//String strTarget = "/g";
 
 					String sender = m_clientStub.getMyself().getName();
-					sendToServer("game#"+sender+"#gamestart");
+					sendToServer("game#"+sender+"#gamestart", m_clientStub.getMyself().getCurrentGroup());
 					
 					//버튼 비활성
 					//m_clientStub.chat(strTarget, "is ready to start.");
@@ -561,6 +564,19 @@ class WordGameClient extends JFrame
 		CMDummyEvent due = new CMDummyEvent();
 		
 		due.setDummyInfo(input);
+		due.setHandlerSession("session1");
+		String strTarget = "SERVER";
+		m_clientStub.send(due, strTarget);
+	
+	}
+	
+	private void sendToServer(String input, String groupName)
+	{
+		CMDummyEvent due = new CMDummyEvent();
+		
+		due.setDummyInfo(input);
+		due.setHandlerSession("session1");
+		due.setHandlerGroup(groupName);
 		String strTarget = "SERVER";
 		m_clientStub.send(due, strTarget);
 	
@@ -571,11 +587,15 @@ class WordGameClient extends JFrame
 		CMDummyEvent due = new CMDummyEvent();
 		CMDummyEvent rdue = new CMDummyEvent();
 		
+		m_clientStub.changeGroup("g"+num);
+		
 		String sender = m_clientStub.getMyself().getName();
 		
+		due.setHandlerSession("session1");
+		due.setHandlerGroup("g"+num);
 		due.setDummyInfo("game#"+sender+"#room#"+num);
 		String strTarget = "SERVER";
-		m_clientStub.send(due, strTarget);
+//		m_clientStub.send(due, strTarget);
 		
 		rdue = (CMDummyEvent) m_clientStub.sendrecv(due, strTarget, CMInfo.CM_DUMMY_EVENT, 222, 10000);
 		

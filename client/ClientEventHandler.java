@@ -1,6 +1,5 @@
 package client;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -140,6 +139,7 @@ public class ClientEventHandler implements CMAppEventHandler
 		CMDummyEvent due = (CMDummyEvent) cme;
 		
 		String[] getMessage = due.getDummyInfo().split("#");
+		System.out.println("IPR, getMessage");
 		
 		if(getMessage[2].equals("startgame")) 
 		{
@@ -148,26 +148,23 @@ public class ClientEventHandler implements CMAppEventHandler
 			//스타트 버튼 비활성
 		}
 		
-		if(getMessage[2].equals("gameword")) 
+		if(getMessage[2].equals("firstWord") || getMessage[2].equals("gameword")) 
 		{
-			if(getMessage[3].equals("firstWord"))
-			{
-				RprintMessage("<SERVER> : "+getMessage[4]+"\n");
-			}
-			
-			else
-			{
-				if(getMessage[3]!="validmessage")
-				{
-					m_clientStub.chat(due.getHandlerGroup(), getMessage[3]+" is available."+"\n");
-				}
-				else if(getMessage[3]!="nonvalidmessage")
-				{
-					m_clientStub.chat(due.getHandlerGroup(), getMessage[3]+" is not valid."+"\n");
-					//재입력 요구
-				}
-			}
+
+				RprintMessage("<SERVER> : "+getMessage[3]+"\n");
 		}
+		
+		if(getMessage[2].equals("validmessage"))
+		{
+			RprintMessage(getMessage[3]+" is available."+"\n");
+		}
+		
+		if(getMessage[2].equals("nonvalidmessage"))
+		{
+			RprintMessage(getMessage[3]+" is not valid."+"\n");
+			//재입력 요구
+		}
+
 		
 		if(getMessage[2].equals("notstartgame")) 
 		{

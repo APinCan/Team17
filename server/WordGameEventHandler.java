@@ -119,6 +119,12 @@ public class WordGameEventHandler implements CMAppEventHandler {
 						groupMembers[groupIdx]=1;
 						break;
 					}
+					else if(gInfo.getGroupUsers().getMemberNum()>2) {
+						groupMembers[groupIdx]=3;
+					}
+					else if(gInfo.getGroupUsers().getMemberNum()==0) {
+						groupMembers[groupIdx]=0;
+					}
 				}
 				
 				groupIdx++;
@@ -127,7 +133,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 			if(getMessage[2].equals("room")) {
 //				String temp = getMessage[3]; 
 //				groupIdx = Integer.getInteger(temp);
-				if(groupMembers[groupIdx] < 2 && gameStartFlags[groupIdx]==false) {			
+				if(groupMembers[groupIdx] <=2 && gameStartFlags[groupIdx]==false) {			
 					dummySendMessage = "game#server#room#true";
 				}
 				else {
@@ -220,7 +226,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 							System.out.println("PR, timer is alived");
 							timerThread[groupIdx].interrupt();
 							
-							dummySendMessage="game#serever#gameword"+getMessage[3];
+							dummySendMessage="game#server#gameword#"+getMessage[3];
 							sendDue.setDummyInfo(dummySendMessage);
 //							if game word pass constraints then re-send to group
 							m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
@@ -246,6 +252,9 @@ public class WordGameEventHandler implements CMAppEventHandler {
 					
 //					sendToClient(sendDue, due);
 //					valid or non-valid message send to group
+					
+					dummySendMessage = dummySendMessage+"#"+getMessage[3];
+					
 					sendDue.setDummyInfo(dummySendMessage);
 					m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
 					
@@ -265,7 +274,8 @@ public class WordGameEventHandler implements CMAppEventHandler {
 							timerThread[groupIdx].interrupt();
 							
 						}
-						dummySendMessage="game#server#validmessage";
+//						dummySendMessage="game#server#validmessage";
+						dummySendMessage="game#server#validmessage#"+getMessage[3];
 						sendDue.setDummyInfo(dummySendMessage);
 //						send valid message to client
 						m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
@@ -282,7 +292,9 @@ public class WordGameEventHandler implements CMAppEventHandler {
 					}
 //					if receive word is non-valid
 					else {
-						dummySendMessage="game#server#nonvalidmessage";
+//						dummySendMessage="game#server#nonvalidmessage";
+						dummySendMessage="game#server#nonvalidmessage#"+getMessage[3];
+						
 						sendDue.setDummyInfo(dummySendMessage);
 						m_serverStub.cast(sendDue, due.getHandlerSession(), due.getHandlerGroup());
 						
