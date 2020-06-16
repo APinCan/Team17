@@ -154,6 +154,7 @@ public class WordGameEventHandler implements CMAppEventHandler {
 					dummySendMessage = "game#server#room#false";
 				}
 				
+				sendDue.setID(222);
 				sendDue.setHandlerGroup("SERVER");
 				sendDue.setHandlerSession("SERVER");
 				sendDue.setDummyInfo(dummySendMessage);
