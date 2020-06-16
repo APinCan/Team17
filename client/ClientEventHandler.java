@@ -184,6 +184,7 @@ public class ClientEventHandler implements CMAppEventHandler
 			rdue.setHandlerGroup(cgroup);
 			rdue.setDummyInfo("game#"+sender+"#gameover");
 			m_clientStub.send(rdue, strTarget);
+			
 			//스타트 버튼 활성
 		}	
 		
