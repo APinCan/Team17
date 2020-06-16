@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.JOptionPane;
+
 import kr.ac.konkuk.ccslab.cm.event.CMDataEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMDummyEvent;
 import kr.ac.konkuk.ccslab.cm.event.CMEvent;
@@ -93,11 +95,11 @@ public class ClientEventHandler implements CMAppEventHandler
 			case CMInterestEvent.USER_TALK:
 				if(ie.getHandlerGroup() != "g1")
 				{
-					RprintMessage("<"+ie.getUserName()+"> "+ie.getTalk()+"\n");
+					RprintMessage("<"+ie.getUserName()+"> : "+ie.getTalk()+"\n");
 				}
 				else
 				{
-					LprintMessage("<"+ie.getUserName()+"> "+ie.getTalk()+"\n");
+					LprintMessage("<"+ie.getUserName()+"> : "+ie.getTalk()+"\n");
 				}
 				
 				break;
@@ -121,7 +123,7 @@ public class ClientEventHandler implements CMAppEventHandler
 				RprintMessage("["+de.getUserName()+"] enters the game.\n");
 				break;
 				
-				//exit the game room.
+			//exit the game room.
 			case CMDataEvent.REMOVE_USER:
 				RprintMessage("["+de.getUserName()+"] leaves the game.\n");
 				break;
@@ -136,7 +138,63 @@ public class ClientEventHandler implements CMAppEventHandler
 	private void processDummyEvent(CMEvent cme)
 	{
 		CMDummyEvent due = (CMDummyEvent) cme;
-		//서버이벤트핸들러에서  서버내 끝말잇기 메소드 호출
+		
+		String[] getMessage = due.getDummyInfo().split("#");
+		
+		if(getMessage[2].equals("startgame")) 
+		{
+			m_client.setFlag(true);
+			RprintMessage("Game Start");
+			//스타트 버튼 비활성
+		}
+		
+		if(getMessage[2].equals("gameword")) 
+		{
+			if(getMessage[3].equals("firstWord"))
+			{
+				RprintMessage("<SERVER> : "+getMessage[4]+"\n");
+			}
+			
+			else
+			{
+				if(getMessage[3]!="validmessage")
+				{
+					m_clientStub.chat(due.getHandlerGroup(), getMessage[3]+" is available."+"\n");
+				}
+				else if(getMessage[3]!="nonvalidmessage")
+				{
+					m_clientStub.chat(due.getHandlerGroup(), getMessage[3]+" is not valid."+"\n");
+					//재입력 요구
+				}
+			}
+		}
+		
+		if(getMessage[2].equals("notstartgame")) 
+		{
+			JOptionPane.showMessageDialog(null, "Can not start game!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+		}
+		
+		if(getMessage[2].equals("timeExpire")) 
+		{
+			m_client.setFlag(false);
+			RprintMessage("Game Over!");
+			//스타트 버튼 활성
+		}	
+		
+		/*
+		if(getMessage[2].equals("room")) 
+		{
+			if(getMessage[3].equals("true"))
+			{
+				due.setDummyInfo("true");
+			}
+			else
+			{
+				due.setDummyInfo("false");
+			}
+		
+		}
+		*/
 		
 		// 
 		// when client press game start button, 
@@ -156,20 +214,7 @@ public class ClientEventHandler implements CMAppEventHandler
 		// when client violate 5senconds rule
 		// game#server#timeExpire
 		
-		
-		return;
 	}
-	
-	
-	//p69
-		private void processUserEvent(CMEvent cme)
-		{
-			CMUserEvent ue = (CMUserEvent) cme;
-			switch(ue.getID())
-			{
-				//blank
-			}
-		}
 
 	
 	private void LprintMessage(String strText)
@@ -186,6 +231,4 @@ public class ClientEventHandler implements CMAppEventHandler
 		return;
 	}
 	
-	
-
 }

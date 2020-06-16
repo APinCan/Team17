@@ -40,6 +40,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
 
 
 class WordGameClient extends JFrame 
@@ -59,6 +60,8 @@ class WordGameClient extends JFrame
 	
 	int viewT = 0;
 	String tg = "/b";
+	boolean Sflag = false;
+	//boolean Wflag = false;
 	
 	class LogInPanel extends JPanel
 	{
@@ -170,18 +173,20 @@ class WordGameClient extends JFrame
 			btnRoom.setBounds(20, 25, 170, 98);
 			btnRoom.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-//					if(RoomInfo(2)==true)
-//					{
+					boolean fg = RoomInfo();
+					if(fg == true)
+					{
 						m_clientStub.changeGroup("g2");
 						viewT = 2;
 						changePan();
 						setTitle("Room 1");
 						textPane.setText("");
-						textPane_1.setText("");
-//					}
-//					else
-//						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
-							
+						textPane_1.setText("");						
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+					}
 				}
 			});
 			add(btnRoom);
@@ -190,18 +195,20 @@ class WordGameClient extends JFrame
 			btnRoom_2.setBounds(216, 25, 170, 98);
 			btnRoom_2.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-//					if(RoomInfo(3)==true)
-//					{
-						m_clientStub.changeGroup("g3");
+					boolean fg = RoomInfo();
+					if(fg == true)
+					{
+						m_clientStub.changeGroup("g2");
 						viewT = 2;
 						changePan();
-						setTitle("Room 2");
+						setTitle("Room 1");
 						textPane.setText("");
 						textPane_1.setText("");
-//					}
-//					else
-//						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
-						
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+					}
 				}
 			});
 			add(btnRoom_2);
@@ -210,18 +217,20 @@ class WordGameClient extends JFrame
 			btnRoom_3.setBounds(410, 25, 170, 98);
 			btnRoom_3.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-//					if(RoomInfo(4)==true)
-//					{
-						m_clientStub.changeGroup("g4");
+					boolean fg = RoomInfo();
+					if(fg == true)
+					{
+						m_clientStub.changeGroup("g2");
 						viewT = 2;
 						changePan();
-						setTitle("Room 3");
+						setTitle("Room 1");
 						textPane.setText("");
 						textPane_1.setText("");
-//					}
-//					else
-//						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
-						
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(null, "Please enter another room!\n", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+					}
 				}
 			});
 			add(btnRoom_3);
@@ -277,11 +286,15 @@ class WordGameClient extends JFrame
 						JTextField input = (JTextField)e.getSource();
 						String strMessage = input.getText();
 						String strTarget = "/g";
-						//chat
-						m_clientStub.chat(strTarget, strMessage);
-						//더미 이벤트
-						sendToServer("game#server#gameword#firstWord#"+strMessage);
+						String sender = m_clientStub.getMyself().getName();
 						
+						m_clientStub.chat(strTarget, strMessage);
+						
+						if(Sflag == true)
+						{
+							sendToServer("game#"+sender+"#gameword#"+strMessage);
+						}
+
 						input.setText("");
 						input.requestFocus();
 					}
@@ -298,13 +311,35 @@ class WordGameClient extends JFrame
 			btnStart.setBounds(500, 342, 80, 30);
 			btnStart.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					String strTarget = "/g";
+					//String strTarget = "/g";
+
+					String sender = m_clientStub.getMyself().getName();
+					sendToServer("game#"+sender+"#gamestart");
+					
+					//버튼 비활성
 					//m_clientStub.chat(strTarget, "is ready to start.");
-					//더미이벤트
-					startGame();
 				}
 			});
 			topButtonPanel.add(btnStart);
+			
+			JToggleButton btnOnOff = new JToggleButton("Constraint on");
+			btnOnOff.setBounds(500, 342, 80, 30);
+			btnOnOff.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if(btnOnOff.isSelected())
+					{
+						String sender = m_clientStub.getMyself().getName();
+						sendToServer("game#"+sender+"#constraints#on");
+					}
+					else
+					{
+						String sender = m_clientStub.getMyself().getName();
+						sendToServer("game#"+sender+"#constraints#off");
+					}
+					
+				}
+			});
+			topButtonPanel.add(btnOnOff);
 			
 			JButton btnExit_2 = new JButton("Exit");
 			btnExit_2.setBounds(500, 342, 80, 30);
@@ -501,6 +536,16 @@ class WordGameClient extends JFrame
 		return tg;
 	}
 	
+	public boolean getSFlag()
+	{
+		return Sflag;
+	}
+	
+	public void setFlag(boolean fg)
+	{
+		Sflag = fg;
+	}
+	
 	public CMClientStub getClientStub()
 	{
 		return m_clientStub;
@@ -511,45 +556,33 @@ class WordGameClient extends JFrame
 		return m_eventHandler;
 	}
 	
-	public void sendToServer(String input)
+	private void sendToServer(String input)
 	{
 		CMDummyEvent due = new CMDummyEvent();
-		CMDummyEvent rdue = new CMDummyEvent();
 		
 		due.setDummyInfo(input);
 		String strTarget = "SERVER";
 		m_clientStub.send(due, strTarget);
-		//서버이벤트핸들러 rdue.setID(222)
-		//rdue = (CMDummyEvent) m_clientStub.sendrecv(due, strTarget, CMInfo.CM_DUMMY_EVENT, 222, 5000);
-	}
 	
-	public void startGame()
-	{
-		CMDummyEvent due = new CMDummyEvent();
-		
-		due.setDummyInfo("game#server#gamestart");
-		String strTarget = "SERVER";
-		m_clientStub.send(due, strTarget);
 	}
-	
-	//수정 필요. 숫자뿐만 아니라 게임 시작중인지도 함께 연산하여 리턴시켜야 함
-	public boolean RoomInfo(int num)
+
+	private boolean RoomInfo()
 	{
 		CMDummyEvent due = new CMDummyEvent();
 		CMDummyEvent rdue = new CMDummyEvent();
-		String tmp = num+"";
 		
-		due.setID(111);
-		due.setDummyInfo(tmp);
-		//due.setDummyInfo(num);
+		String sender = m_clientStub.getMyself().getName();
+		
+		due.setDummyInfo("game#"+sender+"#room");
 		String strTarget = "SERVER";
 		m_clientStub.send(due, strTarget);
 		
-		rdue = (CMDummyEvent) m_clientStub.sendrecv(due, strTarget, CMInfo.CM_DUMMY_EVENT, 222, 5000);
+		rdue = (CMDummyEvent) m_clientStub.sendrecv(due, strTarget, CMInfo.CM_DUMMY_EVENT, 222, 1000);
 		
-		String flag = rdue.getDummyInfo();
 		
-		if(flag == "t")
+		String[] getMessage = rdue.getDummyInfo().split("#");
+		
+		if(getMessage[3].equals("true"))
 			return true;
 		else
 			return false;
