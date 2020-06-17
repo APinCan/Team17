@@ -21,7 +21,7 @@ public class ClientEventHandler implements CMAppEventHandler
 {
 	private WordGameClient m_client;
 	private CMClientStub m_clientStub;
-	
+	private boolean serverFirstwordFlag=false;
 	private int m_nCurNumFilesPerSession;
 
 	public ClientEventHandler(CMClientStub m_clientStub, WordGameClient WordGameClient) 
@@ -151,8 +151,10 @@ public class ClientEventHandler implements CMAppEventHandler
 		
 		if(getMessage[2].equals("firstWord") || getMessage[2].equals("gameword")) 
 		{
-
-				RprintMessage("<SERVER> : "+getMessage[3]+"\n");
+//			RprintMessage("<SERVER> : "+getMessage[3]+"\n");
+			RprintMessage("<WORD> : "+getMessage[3]+"\n");
+			
+//			serverFirstwordFlag=true;
 		}
 		
 		if(getMessage[2].equals("validmessage"))
